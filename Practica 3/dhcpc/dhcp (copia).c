@@ -10,14 +10,22 @@
 #include <unistd.h>
 
 void imprimeTrama(unsigned char *paq, int len){
-	int tram[16];
+	//int tram[16];
 	for(int i = 0; i < len; i++){
 		if((i%16) == 0){
 			printf("\n");
 		}
 		printf("%.2x ", paq[i]);
-		tram[i]=(int) paq[i];
-		printf("  %d ", (int) paq[i]);
+	}
+	printf("\n");
+}
+void imprimeTramaDecimal(unsigned char *paq, int len){
+	//int tram[16];
+	for(int i = 0; i < len; i++){
+		if((i%16) == 0){
+			printf("\n");
+		}
+		printf("%d ", (int) paq[i]);
 	}
 	printf("\n");
 }
@@ -48,12 +56,16 @@ int main(int argc, char const *argv[]){
 		clilen = sizeof(client_addr);
 	    while(1){
 	    	tamrecv = recvfrom(ds, dhcp_discover, sizeof(dhcp_discover), 0, (struct sockaddr *)&client_addr, &clilen);
+			imprimeTramaDecimal(dhcp_offer,235);
 		    if(tamrecv < 0){
 		    		perror("No envia DHCPDISCOVER");
 			}else{
 				printf("Exito al recibir DHCPDISCOVER\n");
 				int i;
-				memcpy(dhcp_offer, dhcp_discover, 235);
+				printf("Imprimiendo discover \n\n  ");
+				imprimeTramaDecimal(dhcp_discover,160);
+				memcpy(dhcp_offer, dhcp_discover, 160);
+
 				//Offer
 				dhcp_offer[0] = 2;
 		    	dhcp_offer[8] = 0;
@@ -121,18 +133,19 @@ int main(int argc, char const *argv[]){
 				dhcp_offer[273] = 0xff;
 
 				tamsend = sendto(ds, dhcp_offer, 274, 0, (struct sockaddr *)&server_addr, clilen);
-				imprimeTrama(dhcp_offer,274);
 				if(tamsend < 0){
 		    		perror("\nError en sendto");
 		    	}else{
 		    		printf("Exito al enviar DHCPOFFER\n");
+					printf("imprime discover \n ");
+					imprimeTramaDecimal(dhcp_offer,235);
 		    		//Request
     				tamrecv = recvfrom(ds, dhcp_discover, sizeof(dhcp_discover), 0, (struct sockaddr *)&client_addr, &clilen);
     				if(tamrecv < 0){
     					perror("\nError al recibir DHCPREQUEST");
     				}else{
     					printf("Exito al recibir DHCPREQUEST\n");
-						imprimeTrama(dhcp_discover,235);
+						
     					memcpy(dhcp_ack, dhcp_discover, 235);
     					//ACK
 				    	dhcp_ack[0] = 2;
@@ -207,11 +220,13 @@ int main(int argc, char const *argv[]){
 
 						dhcp_ack[279] = 0xff;
 						if(!memcmp(dhcp_discover+242, opc_ack, 1)){
+							imprimeTramaDecimal(dhcp_ack,280);
 							tamsend = sendto(ds, dhcp_ack, 280, 0, (struct sockaddr *)&server_addr, clilen);
 							if(tamsend < 0){
 								perror("\nError al enviar DHCPACK");
 							}else{
 								printf("Exito al enviar DHCPACK\n");
+								imprimeTramaDecimal(dhcp_ack,280);
 							}
 						}
     				}
