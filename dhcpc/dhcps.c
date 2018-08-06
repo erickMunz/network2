@@ -10,20 +10,35 @@
 #include <unistd.h>
 
 void imprimeTrama(unsigned char *paq, int len){
-	int tram[16];
+	//int tram[16];
 	for(int i = 0; i < len; i++){
 		if((i%16) == 0){
 			printf("\n");
 		}
 		printf("%.2x ", paq[i]);
-		tram[i]=(int) paq[i];
-		printf("  %d ", (int) paq[i]);
 	}
 	printf("\n");
 }
-
+void imprimeTramaDecimal(unsigned char *paq, int len){
+	//int tram[16];
+	for(int i = 0; i < len; i++){
+		if((i%16) == 0){
+			printf("\n");
+		}
+		printf("%d ", (int) paq[i]);
+	}
+	printf("\n");
+}
+int esRequest(unsigned char *paq){
+	if(paq[240]==53&&paq[241]==1&&paq[242]==3){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
 int main(int argc, char const *argv[]){
-    unsigned char dhcp_discover[343], dhcp_offer[274], dhcp_ack[280], opc_ack[1] = {0x03};
+    unsigned char dhcp_discover[361], dhcp_offer[274], dhcp_ack[280], opc_ack[1] = {0x03};
     int ds, ds2, tamrecv, tamsend, on = 1;
     socklen_t clilen, serverlen;
     struct sockaddr_in server_addr, client_addr;
@@ -53,7 +68,12 @@ int main(int argc, char const *argv[]){
 			}else{
 				printf("Exito al recibir DHCPDISCOVER\n");
 				int i;
-				memcpy(dhcp_offer, dhcp_discover, 235);
+				if(esRequest(dhcp_discover)){
+					printf("es request");
+				}
+				printf("Imprimiendo Discover \n\n  ");
+				memcpy(dhcp_offer, dhcp_discover, 160);
+
 				//Offer
 				dhcp_offer[0] = 2;
 		    	dhcp_offer[8] = 0;
@@ -121,18 +141,19 @@ int main(int argc, char const *argv[]){
 				dhcp_offer[273] = 0xff;
 
 				tamsend = sendto(ds, dhcp_offer, 274, 0, (struct sockaddr *)&server_addr, clilen);
-				imprimeTrama(dhcp_offer,274);
 				if(tamsend < 0){
 		    		perror("\nError en sendto");
 		    	}else{
 		    		printf("Exito al enviar DHCPOFFER\n");
+					printf("imprime DHCPOFFER \n ");
+				
 		    		//Request
     				tamrecv = recvfrom(ds, dhcp_discover, sizeof(dhcp_discover), 0, (struct sockaddr *)&client_addr, &clilen);
     				if(tamrecv < 0){
     					perror("\nError al recibir DHCPREQUEST");
     				}else{
     					printf("Exito al recibir DHCPREQUEST\n");
-						imprimeTrama(dhcp_discover,235);
+						
     					memcpy(dhcp_ack, dhcp_discover, 235);
     					//ACK
 				    	dhcp_ack[0] = 2;
