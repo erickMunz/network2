@@ -9,7 +9,6 @@
 #include <netinet/ip.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#define TAM 5
 
 void imprimeTrama(unsigned char *paq, int len){
 	//int tram[16];
@@ -113,7 +112,6 @@ void formatoACK(unsigned char *paq,char *ip){
 	paq[279] = 0xff;
 }
 int ipPedida(char* p){
-	printf("%d  %d",p[252],p[253]);
 	if(p[252]==50&& p[253]==4){
 		return 1;
 	}
@@ -229,7 +227,7 @@ int esRequest(unsigned char *paq){
 		return 0;
 	}
 }
-void guardarIP(unsigned char *lease, unsigned char *paq){
+void guardarMAC(unsigned char *lease, unsigned char *paq){
     int i = 0;
 	for (i=0;i<7;i++)
 	{
@@ -237,6 +235,12 @@ void guardarIP(unsigned char *lease, unsigned char *paq){
 	}
 }
 
+void guardarIP(unsigned char *lease, unsigned char *paq){
+	int i = 0;
+	for(i=0;i<3;i++){
+		lease[i]=paq[16+i];
+	}
+}
 int buscarMac(unsigned char *lease, unsigned char *paq){
 	int i = 0;
 	for(i=0;i<7;i++){
@@ -247,15 +251,17 @@ int buscarMac(unsigned char *lease, unsigned char *paq){
 	return 1;
 }
 int main(int argc, char const *argv[]){
-    unsigned char dhcp_discover[361], dhcp_offer[274], dhcp_ack[280], opc_ack[1] = {0x03}, lease[TAM][8];
+    unsigned char dhcp_discover[361], dhcp_offer[274], dhcp_ack[280], opc_ack[1] = {0x03};
 	int veces = 0;
+	char ipini[50];
     //recuerda agregar la mac al lease y despues validar en el request si es que ya le habias asignado algo a ese dispositivo
     int ds, ds2, tamrecv, tamsend, on = 1;
     socklen_t clilen, serverlen;
+	int TAM;
     struct sockaddr_in server_addr, client_addr;
    
     ds  = socket(AF_INET, SOCK_DGRAM, 0);
-
+	
     if((setsockopt(ds, SOL_SOCKET, SO_BROADCAST, &on, sizeof(on))) < 0){
     	perror("\nsetsockopt");
     }
@@ -267,6 +273,11 @@ int main(int argc, char const *argv[]){
     client_addr.sin_family = AF_INET;
     client_addr.sin_addr.s_addr = INADDR_ANY;
     client_addr.sin_port = htons(67);
+	printf("Escribe el inicio de las redes que asignare \n");
+	scanf("%s",ipini);
+	printf("Cuantas ips asignare \n");
+	scanf("%d",&TAM);
+	unsigned char lease[TAM][8],iplease[TAM][4];
     if((bind(ds, (struct sockaddr *)&client_addr,sizeof(client_addr))) < 0){
     	perror("\nError en Bind Cliente ");
     }else{
@@ -349,12 +360,46 @@ int main(int argc, char const *argv[]){
 																	printf("Exito al enviar DHCPACK\n");
 																}
 											}
+										}else{
+											char ip[50];
+											sprintf(ip,"192.168.1.%d",10+(veces-i));
+											formatoOffer(dhcp_offer,ip);
+											tamsend = sendto(ds, dhcp_offer, 274, 0, (struct sockaddr *)&server_addr, clilen);
+											if(tamsend < 0){
+												perror("\nError en sendto");
+											}else{
+												printf("Exito al enviar DHCPOFFER\n");
+												printf("imprime discover \n ");
+												
+												//Request
+												tamrecv = recvfrom(ds, dhcp_discover, sizeof(dhcp_discover), 0, (struct sockaddr *)&client_addr, &clilen);
+												if(tamrecv < 0){
+													perror("\nError al recibir DHCPREQUEST");
+												}else{
+													printf("Exito al recibir DHCPREQUEST\n");
+													
+													memcpy(dhcp_ack, dhcp_discover, 235);
+													char ip[50];
+													sprintf(ip,"192.168.1.%d",10+(veces-i));
+													formatoACK(dhcp_ack,ip);
+													if(!memcmp(dhcp_discover+242, opc_ack, 1)){
+														tamsend = sendto(ds, dhcp_ack, 280, 0, (struct sockaddr *)&server_addr, clilen);
+														if(tamsend < 0){
+															perror("\nError al enviar DHCPACK");
+														}else{
+															printf("Exito al enviar DHCPACK\n");
+														}
+													}else{
+														printf("es esta mamada");
+													}
+												}
+											}
 										}
 											
 									}
 									else{
 											memcpy(dhcp_offer, dhcp_discover, 160);
-				char ip[50];
+											char ip[50];
 				sprintf(ip,"192.168.1.%d",10+veces);
 				formatoOffer(dhcp_offer,ip);
 				tamsend = sendto(ds, dhcp_offer, 274, 0, (struct sockaddr *)&server_addr, clilen);
@@ -371,7 +416,8 @@ int main(int argc, char const *argv[]){
     					printf("Exito al recibir DHCPREQUEST\n");
 						if(veces==0){
 							printf("primera vez \n");
-							guardarIP(lease[veces],dhcp_discover);
+							guardarMAC(lease[veces],dhcp_discover);
+							guardarIP(iplease[veces],dhcp_offer);
 							ipPedida(dhcp_discover);
 							memcpy(dhcp_ack, dhcp_discover, 235);
 							char ip2[50];
@@ -411,7 +457,22 @@ int main(int argc, char const *argv[]){
 																printf("Exito al enviar DHCPACK\n");
 															}
 														}
+													}else{
+														memcpy(dhcp_ack, dhcp_discover, 235);
+														char ip[50];
+														sprintf(ip,"%d.%d.%d.%d",iplease[i][0],iplease[i][1],iplease[i][2],iplease[i][3]);
+														printf("ip %s",ip);
+														formatoACK(dhcp_ack,ip);
+														if(!memcmp(dhcp_discover+242, opc_ack, 1)){
+															tamsend = sendto(ds, dhcp_ack, 280, 0, (struct sockaddr *)&server_addr, clilen);
+															if(tamsend < 0){
+																perror("\nError al enviar DHCPACK");
+															}else{
+																printf("Exito al enviar DHCPACK\n");
+															}
+														}
 													}
+
 												}
 												else{
 														memcpy(dhcp_ack, dhcp_discover, 235);
