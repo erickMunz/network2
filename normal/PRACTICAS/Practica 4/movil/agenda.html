@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Index</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="content-type" charset="utf-8">
+    <link rel="stylesheet" href="librerias/jqm/jquery.mobile-1.4.5.css">
+    <script src="librerias/jqm/jquery-1.12.1.js"></script>
+    <script src="librerias/jqm/jquery.mobile-1.4.5.min.js"></script>
+    <script type="text/javascript" src="js/funciones.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/estilos.css">
+</head>
+<body>
+    <div data-role="page" id="main" data-theme="a" data-ajax="false">
+        <div data-role="header" data-theme="a" class="headerclase">
+            <h1 id="h1">Agenda</h1>
+            <a href="#datos" data-role="button" data-theme="b" class="ui-btn-right" data-icon="gear">Datos</a>
+        </div>
+        <div data-role="content">
+            <ul data-role="listview" data-inset="true">
+                <li><a href="#nuevoEvento">Crear Evento</a></li>
+                <li><a href="#consultar">Consultar Eventos</a></li>
+            </ul>
+        </div>
+        <div data-role="footer" data-theme="a" data-position="fixed" class="headerclase"> 
+            <h3>Agenda minimalista</h3>
+        </div>
+    </div> 
+    <!-- Termina página principal -->
+
+	<div data-role="page" id="consultar" data-theme="a" data-ajax="false">
+        <div data-role="header" data-theme="a" data-add-back-btn="true" data-back-btn-text="Atrás" class="headerclase">
+            <h1>Eventos</h1>
+        </div>
+        <div data-role="content"> 
+            <form id="form3" action="#" method="post">
+				<button class="ui-btn" onclick="consultaGlobal();">Ver todos los eventos</button>
+            <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+                <legend>Consulta:</legend>
+                <input type="radio" name="tipo" id="radio-choice-h-2a" value="rango" checked="checked" onclick="camRango();">
+                <label for="radio-choice-h-2a">Por Rango</label>
+                <input type="radio" name="tipo" id="radio-choice-h-2b" value="year" onclick="camYear();">
+                <label for="radio-choice-h-2b">Por Año</label>
+                <input type="radio" name="tipo" id="radio-choice-h-2c" value="mes" onclick="camMes();">
+                <label for="radio-choice-h-2c">Por Mes</label>
+                <input type="radio" name="tipo" id="radio-choice-h-2d" value="dia" onclick="camDia();">
+                <label for="radio-choice-h-2d">Por Dia</label>
+            </fieldset>
+            <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+                <legend>Categoria:</legend>
+                <input type="radio" name="categoria" id="radio-choice-h-6a" value="cita" checked="checked">
+                <label for="radio-choice-h-6a">Cita</label>
+                <input type="radio" name="categoria" id="radio-choice-h-6b" value="junta">
+                <label for="radio-choice-h-6b">Junta</label>
+                <input type="radio" name="categoria" id="radio-choice-h-6c" value="proyecto">
+                <label for="radio-choice-h-6c">Entrega de Proyecto</label>
+                <input type="radio" name="categoria" id="radio-choice-h-6d" value="examen">
+                <label for="radio-choice-h-6d">Examen</label>
+                <input type="radio" name="categoria" id="radio-choice-h-6e" value="otro">
+                <label for="radio-choice-h-6e">Otro</label>
+            </fieldset>
+            <legend id="mostrar"></legend>
+			<div id="mes" style="display:none;">
+				<select id="mes2" name="select-native-1" id="select-native-1">
+                        <option value="1">Enero</option>
+                        <option value="2">Febrero</option>
+                        <option value="3">Marzo</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Mayo</option>
+                        <option value="6">Junio</option>
+                        <option value="7">Julio</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Septiembre</option>
+                        <option value="10">Octubre</option>
+                        <option value="12">Noviembre</option>
+                        <option value="12">Diciembre</option>
+                    </select>
+                </div>
+                <div id="rangos" style="display:none;">
+                    Fecha Inicial<input type="date" id="finicial">
+                    Fecha Final<input type="date" id="ffin">
+                </div>
+                <div id="year" style="display:none;">
+                    Año<input type="text" id="year2">
+                </div>
+                <div id="dia" style="display:none;">
+                    <select id="dia2" name="select-native-1" id="select-native-1">
+                        <option value="01">1</option>
+                        <option value="02">2</option>
+                        <option value="03">3</option>
+                        <option value="04">4</option>
+                        <option value="05">5</option>
+                        <option value="06">6</option>
+                        <option value="07">7</option>
+                        <option value="08">8</option>
+                        <option value="09">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                        <option value="23">23</option>
+                        <option value="24">24</option>
+                        <option value="25">25</option>
+                        <option value="26">26</option>
+                        <option value="27">27</option>
+                        <option value="28">28</option>
+                        <option value="29">29</option>
+                        <option value="30">30</option>
+                        <option value="31">31</option>
+                    </select>
+                </div>
+                <button class="ui-btn" onclick="consultarEvent();">Consultar</button>
+            </form>
+            <table data-role="table" id="temp-table" data-mode="reflow" class="ui-responsive table-stroke">
+                <thead>
+                    <tr>
+                        <th data-priority="persist">Fecha</th>
+                        <th data-priority="1">Hora</th>
+                        <th data-priority="1">Categoria</th>
+                        <th data-priority="2">Status</th>
+                        <th data-priority="2">Descripcion</th>
+                        <th data-priority="2">Borrar</th>
+                    </tr>
+                </thead>
+            <tbody id="mostrarEventos"></tbody>
+            </table>
+		</div>
+
+        <div data-role="popup" id="popupStatus" data-theme="a" class="ui-corner-all">
+            <form id="form4" action="#" method="post">
+                <div style="padding:10px 20px;">
+                    <h3>Elige el status</h3>
+                    <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+                        <input type="radio" name="status" id="radio-choice-h-6f" value="pendiente" checked="checked">
+                        <label for="radio-choice-h-6f">Pendiente</label>
+                        <input type="radio" name="status" id="radio-choice-h-6g" value="aplazado">
+                        <label for="radio-choice-h-6g">Aplazado</label>
+                        <input type="radio" name="status" id="radio-choice-h-6h" value="realizado">
+                        <label for="radio-choice-h-6h">Realizado</label>
+                    </fieldset>
+                    <button class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check" onclick="actulizarStatus();">Actualizar</button>
+                    <button type="submit" class="ui-btn ui-shadow ui-corner-all ui-btn-icon-left ui-icon-delete" onclick="borrarEvento();">Borrar</button>
+                </div>
+            </form>
+        </div>
+
+		<div data-role="footer" data-theme="a" data-position="fixed" class="headerclase">
+			<h3 id="h3">Agenda minimalista</h3>
+		</div>
+	</div>
+    <!-- Termina página consultar Evento -->
+
+    <div data-role="page" id="nuevoEvento" data-theme="a" >
+        <div data-role="header" data-theme="a" data-add-back-btn="true" data-back-btn-text="Atrás" data-ajax="false" class="headerclase">
+            <h1>Nuevo Evento</h1>
+        </div>
+        <div data-role="content">
+            <ul data-role="listview" data-inset="true">
+                <li>
+                    <form id="form2" action="#" method="post">
+                        <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+                            <legend>Categoria:</legend>
+                            <input type="radio" name="categoria" id="radio-choice-h-6a" value="cita" checked="checked">
+                            <label for="radio-choice-h-6a">Cita</label>
+                            <input type="radio" name="categoria" id="radio-choice-h-6b" value="junta">
+                            <label for="radio-choice-h-6b">Junta</label>
+                            <input type="radio" name="categoria" id="radio-choice-h-6c" value="proyecto">
+                            <label for="radio-choice-h-6c">Entrega de Proyecto</label>
+                            <input type="radio" name="categoria" id="radio-choice-h-6d" value="examen">
+                            <label for="radio-choice-h-6d">Examen</label>
+                            <input type="radio" name="categoria" id="radio-choice-h-6e" value="otro">
+                            <label for="radio-choice-h-6e">Otro</label>
+                        </fieldset>
+                        Fecha: <input type="date" id="fecha">
+                        Hora:
+						<input type="time" data-clear-btn="true" name="time-2" id="hora" value="">
+						
+						Descripcion: 
+						<input id="descrip" name="descrip" type="text" required placeholder="Descripcion"/>
+						
+						Status: 
+                        <select id="status">
+                            <option value="pendiente">Pendiente</option> 
+                            <option value="realizado">Realizado</option>
+                            <option value="aplazado">Aplazado</option>   
+                        </select>
+                        <input id="submit" type="submit" value="Guardar"/>
+                    </form>
+                </li>
+            </ul>
+        </div>
+        <div data-role="footer" data-theme="a" data-position="fixed" class="headerclase">
+            <h3>Agenda minimalista</h3>
+        </div>
+	</div> 
+    <!-- Termina página Crear Evento -->
+
+	<div data-role="page" id="datos"  data-ajax="false"  >
+        <div data-role="header" data-theme="a"  data-add-back-btn="true" data-back-btn-text="Atrás" class="headerclase">
+            <h1>Datos</h1>
+        </div>
+        <div data-role="content">
+            <form id="form1" action="#" method="post">
+                <div data-role="fieldcontain">
+                    <label for="username">Nombre</label>
+                    <input id="username" name="username" type="text" required placeholder="Teclea tu nombre" />
+                </div>
+                <div data-role="fieldcontain">
+                    <label for="email">Correo</label>
+                    <input id="email" name="email" type="email" required placeholder="Teclea tu e-mail" />
+                </div>
+                <div data-role="fieldcontain">
+                    <label for="comentarios">Comentarios</label>
+                    <textarea id="comentarios" required placeholder="Ingresa tus comentarios 10 a 100  caracteres de longitud"></textarea>
+                </div>
+                <div id="errmsg" style="color: #f00"></div>
+                <input id="submit" type="submit" value="Guardar"/>
+            </form>
+        </div>
+        <div data-role="footer"  data-theme="a" data-position="fixed" class="headerclase"> 
+            <h3>Agenda minimalista</h3>
+        </div>
+    </div> 
+    <!-- Termina página datos --> 
+</body>
+</html>
